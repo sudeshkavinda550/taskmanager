@@ -18,7 +18,11 @@ def create_app(config_name="development"):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": app.config["FRONTEND_URL"]}})
+    CORS(app, resources={r"/api/*": {"origins": [
+    app.config["FRONTEND_URL"],
+    "https://taskmanager-tawny-delta.vercel.app",
+    "https://taskmanager-*-sudesh-kavindas-projects-dfa9c4d1.vercel.app"
+]}})
 
     # Register blueprints
     from .auth import auth_bp
