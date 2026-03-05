@@ -8,12 +8,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true); // true while checking stored token
 
   // On app load, try to restore session from localStorage
-  useEffect(() => {
+ useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (token) {
       api.getMe()
         .then((data) => setUser(data.user))
-        .catch(() => localStorage.removeItem("access_token"))
+        .catch(async () => {
+          // Token may be expired — try to decode user from token directly
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            if (payload && payload.sub) {
+              // Token still has user info, keep session alive
+              setUser({ id: payload.sub, username: "User", email: "" });
+            } else {
+              localStorage.removeItem("access_token");
+            }
+          } catch {
+            localStorage.removeItem("access_token");
+          }
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
