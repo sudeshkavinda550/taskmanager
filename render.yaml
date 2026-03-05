@@ -1,0 +1,47 @@
+# render.yaml - Deploy to Render.com (free tier available)
+# Run: render deploy
+
+services:
+  # Flask Backend API
+  - type: web
+    name: taskmanager-api
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask db upgrade && gunicorn wsgi:app
+    envVars:
+      - key: FLASK_APP
+        value: wsgi.py
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskmanager-db
+          property: connectionString
+      - key: FRONTEND_URL
+        value: https://taskmanager-frontend.onrender.com  # Update with your frontend URL
+
+  # React Frontend (static site)
+  - type: web
+    name: taskmanager-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://taskmanager-api.onrender.com/api  # Update with your backend URL
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: taskmanager-db
+    databaseName: taskmanager
+    user: taskmanager
+    plan: free

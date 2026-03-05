@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+*.egg-info/
+
+# Flask migrations (keep folder, ignore generated files on fresh clone)
+# backend/migrations/versions/
+
+# Node
+node_modules/
+build/
+.env.local
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
