@@ -32,8 +32,13 @@ def create_app(config_name="development"):
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
 
     # Health check route
-    @app.route("/api/health")
-    def health():
-        return {"status": "ok", "message": "TaskManager API is running"}
+    @app.route("/api/debug")
+def debug():
+    import os
+    return {
+        "jwt_key_set": bool(os.environ.get("JWT_SECRET_KEY")),
+        "jwt_key_length": len(os.environ.get("JWT_SECRET_KEY", "")),
+        "flask_env": os.environ.get("FLASK_ENV")
+    }
 
     return app
